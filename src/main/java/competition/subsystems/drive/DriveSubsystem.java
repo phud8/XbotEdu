@@ -45,6 +45,12 @@ public class DriveSubsystem extends BaseDriveSubsystem implements DataFrameRefre
         frontLeft.set(leftPower*precisionMode);
             frontRight.set(rightPower*precisionMode);
     }
+    public void arcadeDrive(double xValue, double yValue)
+    {
+        frontLeft.set(yValue+xValue);
+        frontRight.set(yValue-xValue);
+    }
+
     public void togglePrecisionMode()
     {
         if (precisionMode==1)
