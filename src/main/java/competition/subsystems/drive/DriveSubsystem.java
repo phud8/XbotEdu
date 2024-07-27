@@ -35,15 +35,26 @@ public class DriveSubsystem extends BaseDriveSubsystem implements DataFrameRefre
         frontLeft.setCheckForSuspiciousSensorValues(false);
         frontRight.setCheckForSuspiciousSensorValues(false);
     }
-
+    public double precisionMode=1;
     public void tankDrive(double leftPower, double rightPower) {
         // You'll need to take these power values and assign them to all of the motors.
         // As
         // an example, here is some code that has the frontLeft motor to spin according
         // to
         // the value of leftPower:
-        frontLeft.set(leftPower);
-            frontRight.set(rightPower);
+        frontLeft.set(leftPower*precisionMode);
+            frontRight.set(rightPower*precisionMode);
+    }
+    public void togglePrecisionMode()
+    {
+        if (precisionMode==1)
+        {
+            precisionMode=.5;
+        }
+        else if(precisionMode==.5)
+        {
+            precisionMode=1;
+        }
     }
     @Override
     public PIDManager getPositionalPid() {
