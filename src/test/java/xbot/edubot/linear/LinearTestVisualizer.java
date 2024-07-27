@@ -69,7 +69,7 @@ public class LinearTestVisualizer {
                 testToRun.stopTestEnv();
             }
             
-            testToRun.setAsyncPeriodMultiplier(10d / speedSlider.getValue());
+            testToRun.setAsyncPeriodMultiplier(1d / speedSlider.getValue());
         });
         
         testToRun.vizRun();

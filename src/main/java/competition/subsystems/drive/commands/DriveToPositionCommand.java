@@ -16,10 +16,12 @@ public class DriveToPositionCommand extends BaseCommand {
         this.drive = driveSubsystem;
         this.pose = pose;
     }
+ public double targetPosition;
 
     public void setTargetPosition(double position) {
         // This method will be called by the test, and will give you a goal distance.
         // You'll need to remember this target position and use it in your calculations.
+        targetPosition=position;
     }
 
     @Override
@@ -37,13 +39,25 @@ public class DriveToPositionCommand extends BaseCommand {
 
         // How you do this is up to you. If you get stuck, ask a mentor or student for
         // some hints!
+        double erorr=targetPosition-pose.getPosition();
+        double power=1*erorr;
+
+        if (pose.getPosition()!=targetPosition)
+        {
+
+            drive.tankDrive(power,power);
+
+        }
+        else{
+            drive.tankDrive(0,0);
+        }
     }
 
     @Override
     public boolean isFinished() {
         // Modify this to return true once you have met your goal,
         // and you're moving fairly slowly (ideally stopped)
-        return false;
+        return (pose.getPosition()==targetPosition);
     }
 
 }
