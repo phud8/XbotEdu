@@ -16,13 +16,29 @@ public class TurnLeft90DegreesCommand extends BaseCommand {
         this.drive = driveSubsystem;
         this.pose = pose;
     }
-
+public double startRotation;
+    public double currentRotation;
     @Override
     public void initialize() {
+         startRotation=pose.getCurrentHeading().getDegrees();
+         currentRotation=pose.getCurrentHeading().getDegrees();
+        System.out.println(startRotation);
     }
 
     @Override
     public void execute() {
+
+        currentRotation=pose.getCurrentHeading().getDegrees();
+        if(currentRotation<startRotation+90)
+        {
+
+            drive.arcadeDrive(-1,0);
+        }
+        else
+            drive.arcadeDrive(0,0);
+
+
+        System.out.println(currentRotation);
     }
 
 }
