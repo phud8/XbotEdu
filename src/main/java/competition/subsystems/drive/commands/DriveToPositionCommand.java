@@ -10,6 +10,7 @@ public class DriveToPositionCommand extends BaseCommand {
 
     DriveSubsystem drive;
     PoseSubsystem pose;
+    double oldPosition;
 
     @Inject
     public DriveToPositionCommand(DriveSubsystem driveSubsystem, PoseSubsystem pose) {
@@ -17,6 +18,7 @@ public class DriveToPositionCommand extends BaseCommand {
         this.pose = pose;
     }
  public double targetPosition;
+    public double currentPosition;
 
     public void setTargetPosition(double position) {
         // This method will be called by the test, and will give you a goal distance.
@@ -28,7 +30,7 @@ public class DriveToPositionCommand extends BaseCommand {
     public void initialize() {
         // If you have some one-time setup, do it here.
     }
-
+    double positionChange=0;
     @Override
     public void execute() {
         // Here you'll need to figure out a technique that:
@@ -40,24 +42,27 @@ public class DriveToPositionCommand extends BaseCommand {
         // How you do this is up to you. If you get stuck, ask a mentor or student for
         // some hints!
         double erorr=targetPosition-pose.getPosition();
-        double power=1*erorr;
+         currentPosition=pose.getPosition();
+        positionChange=currentPosition-oldPosition;
 
-        if (pose.getPosition()!=targetPosition)
-        {
 
+        double power=(1*erorr)-(60*positionChange);
+       if(currentPosition<targetPosition-.5)
+       {drive.tankDrive(5,5);}
+        else if ((currentPosition<(targetPosition-.2))||(currentPosition>(targetPosition+.2)))
+
+       {
             drive.tankDrive(power,power);
 
         }
-        else{
-            drive.tankDrive(0,0);
-        }
+        oldPosition=currentPosition;
     }
 
     @Override
     public boolean isFinished() {
         // Modify this to return true once you have met your goal,
         // and you're moving fairly slowly (ideally stopped)
-        return (pose.getPosition()==targetPosition);
+        return (currentPosition<targetPosition+.2&&currentPosition>targetPosition-.2&&Math.abs(positionChange)<.002);
     }
 
 }
