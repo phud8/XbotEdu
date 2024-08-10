@@ -13,18 +13,19 @@ public class DriveToOrientationCommand extends BaseCommand {
 
 
     @Inject
-    public DriveToOrientationCommand(DriveSubsystem driveSubsystem) {
+    public DriveToOrientationCommand(DriveSubsystem driveSubsystem, PoseSubsystem pose) {
         this.drive = driveSubsystem;
+        this.pose=pose;
     }
     public double targetHeading;
-    double currentRotation;
-    double rotationChange;
-    double oldRotation;
+    public double currentHeading;
+    public double headingChange;
+   public double oldHeading;
     public void setTargetHeading(double heading) {
         // This method will be called by the test, and will give you a goal heading.
         // You'll need to remember this target position and use it in your calculations.
 
-        if(targetHeading<0)
+        if(heading<0)
         {
             targetHeading=180+(180+heading);
         }
@@ -35,6 +36,13 @@ public class DriveToOrientationCommand extends BaseCommand {
     @Override
     public void initialize() {
         // If you have some one-time setup, do it here.
+        currentHeading =pose.getCurrentHeading().getDegrees();
+        if(currentHeading <0)
+        {
+            currentHeading =180+(180+pose.getCurrentHeading().getDegrees());
+        }
+        System.out.println(currentHeading);
+        System.out.println(targetHeading);
     }
 
     @Override
@@ -46,32 +54,33 @@ public class DriveToOrientationCommand extends BaseCommand {
 
         // How you do this is up to you. If you get stuck, ask a mentor or student for
         // some hints!
-        currentRotation=pose.getCurrentHeading().getDegrees();
-        if(currentRotation<0)
+        currentHeading =pose.getCurrentHeading().getDegrees();
+        if(currentHeading <0)
         {
-            currentRotation=180+(180+pose.getCurrentHeading().getDegrees());
+            currentHeading =180+(180+pose.getCurrentHeading().getDegrees());
         }
-        double error=targetHeading-currentRotation;
-        rotationChange=currentRotation-oldRotation;
-        double power=(.01*error)-(.5*rotationChange);
+        double error=targetHeading- currentHeading;
+        headingChange = currentHeading - oldHeading;
+        double power=(.01*error)-(.5* headingChange);
 
-    if(currentRotation<targetHeading-20||currentRotation>targetHeading+20)
+    if(currentHeading <targetHeading-20|| currentHeading >targetHeading+20)
     {
         drive.arcadeDrive(-1,0);
     }
-       else if(currentRotation>targetHeading+1||currentRotation<targetHeading-1)
+       else if(currentHeading >targetHeading+1|| currentHeading <targetHeading-1)
     {
 
         drive.arcadeDrive(-power,0);
     }
-        else
-                drive.arcadeDrive(0,0);
-    oldRotation=currentRotation;
+
+    oldHeading = currentHeading;
     }
     @Override
     public boolean isFinished() {
+        return((currentHeading>targetHeading-1&&currentHeading<targetHeading+1)&&Math.abs(headingChange)<.01);
+
         // Modify this to return true once you have met your goal,
         // and you're moving fairly slowly (ideally stopped)
-        return false;
+
     }
 }
