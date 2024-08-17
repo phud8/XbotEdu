@@ -5,17 +5,26 @@ import javax.inject.Inject;
 import xbot.common.command.BaseCommand;
 import competition.subsystems.drive.DriveSubsystem;
 import competition.subsystems.pose.PoseSubsystem;
+import xbot.common.math.PIDManager;
+
 
 public class DriveToPositionCommand extends BaseCommand {
 
     DriveSubsystem drive;
     PoseSubsystem pose;
     double oldPosition;
+    PIDManager pid;
 
     @Inject
-    public DriveToPositionCommand(DriveSubsystem driveSubsystem, PoseSubsystem pose) {
+    public DriveToPositionCommand(DriveSubsystem driveSubsystem, PoseSubsystem pose, PIDManager.PIDManagerFactory pidManagerFactory) {
         this.drive = driveSubsystem;
         this.pose = pose;
+        pid=pidManagerFactory.create("pid",1,2,30);
+pid.setEnableErrorThreshold(true);
+pid.setErrorThreshold(.1);
+pid.setEnableDerivativeThreshold(true);
+pid.setDerivativeThreshold(.1);
+
     }
  public double targetPosition;
     public double currentPosition;
@@ -29,40 +38,26 @@ public class DriveToPositionCommand extends BaseCommand {
     @Override
     public void initialize() {
         // If you have some one-time setup, do it here.
+        pid.reset();
     }
-    double positionChange=0;
+
     @Override
     public void execute() {
-        // Here you'll need to figure out a technique that:
-        // - Gets the robot to move to the target position
-        // - Hint: use pose.getPosition() to find out where you are
-        // - Gets the robot stop (or at least be moving really really slowly) at the
-        // target position
-
-        // How you do this is up to you. If you get stuck, ask a mentor or student for
-        // some hints!
-        double erorr=targetPosition-pose.getPosition();
+        ;
          currentPosition=pose.getPosition();
-        positionChange=currentPosition-oldPosition;
 
+        double power=pid.calculate(targetPosition,currentPosition);
 
-        double power=(1*erorr)-(60*positionChange);
-       if(currentPosition<targetPosition-.5)
-       {drive.tankDrive(5,5);}
-        else if ((currentPosition<(targetPosition-.2))||(currentPosition>(targetPosition+.2)))
-
+        if ((currentPosition<(targetPosition-.2))||(currentPosition>(targetPosition+.2)))
        {
             drive.tankDrive(power,power);
-
         }
-        oldPosition=currentPosition;
+
     }
 
     @Override
     public boolean isFinished() {
-        // Modify this to return true once you have met your goal,
-        // and you're moving fairly slowly (ideally stopped)
-        return (currentPosition<targetPosition+.2&&currentPosition>targetPosition-.2&&Math.abs(positionChange)<.002);
+         return pid.isOnTarget();
     }
 
 }
